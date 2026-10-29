@@ -10,6 +10,9 @@ const STATUSES: readonly RunStatus[] = ['ok', 'retry', 'fail'];
 export type NightDigest = {
   rows: DigestRow[]; // one per job, sorted by job ascending
   badLines: number; // lines that didn't parse — counted, never thrown
+  ok: number; // lines with status "ok"
+  retry: number; // lines with status "retry"
+  fail: number; // lines with status "fail"
 };
 
 function isRunEvent(value: unknown): value is RunEvent {
@@ -30,11 +33,14 @@ export async function readNightDetailed(runsDir: string, night: string): Promise
   try {
     text = await readFile(join(runsDir, `${night}.jsonl`), 'utf8');
   } catch {
-    return { rows: [], badLines: 0 };
+    return { rows: [], badLines: 0, ok: 0, retry: 0, fail: 0 };
   }
 
   const rows = new Map<string, DigestRow>();
   let badLines = 0;
+  let ok = 0;
+  let retry = 0;
+  let fail = 0;
 
   for (const line of text.split('\n')) {
     if (line.trim() === '') continue;
@@ -66,12 +72,15 @@ export async function readNightDetailed(runsDir: string, night: string): Promise
     }
     row.runs++;
     if (parsed.status === 'retry') row.retries++;
+    if (parsed.status === 'ok') ok++;
+    else if (parsed.status === 'retry') retry++;
+    else fail++;
     row.lastStatus = parsed.status;
     row.lastAt = parsed.at;
     if (parsed.error !== undefined) row.lastError = parsed.error;
   }
 
-  return { rows: [...rows.values()].sort((a, b) => (a.job < b.job ? -1 : a.job > b.job ? 1 : 0)), badLines };
+  return { rows: [...rows.values()].sort((a, b) => (a.job < b.job ? -1 : a.job > b.job ? 1 : 0)), badLines, ok, retry, fail };
 }
 
 // The contract shape from types.ts: rows only, sorted by job.

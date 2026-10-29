@@ -1,6 +1,6 @@
-import type { Status } from '../status.js';
+import type { NightLink, Status } from '../status.js';
 
-export function StatusBoard({ status }: { status: Status }) {
+export function StatusBoard({ status, nights }: { status: Status; nights: NightLink[] }) {
   return (
     <>
       <h1>status</h1>
@@ -15,12 +15,15 @@ export function StatusBoard({ status }: { status: Status }) {
         </tbody>
       </table>
       <h2>nights on disk</h2>
-      {status.nights.length === 0 ? (
+      {nights.length === 0 ? (
         <p class="mute">nothing in runs/</p>
       ) : (
         <ul>
-          {status.nights.map((n) => (
-            <li>{n}</li>
+          {nights.map((n) => (
+            <li>
+              <a href={`/digest/${n.night}`}>{n.night}</a>{' '}
+              <span class="mute">ok {n.ok} · retry {n.retry} · fail {n.fail}</span>
+            </li>
           ))}
         </ul>
       )}

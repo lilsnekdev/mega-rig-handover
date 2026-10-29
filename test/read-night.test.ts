@@ -100,14 +100,14 @@ describe('readNight · edge cases (temp runs dir)', () => {
     const rows = await readNight(tmpRuns, 'no-such-night');
     expect(rows).toEqual([]);
     const digest = await readNightDetailed(tmpRuns, 'no-such-night');
-    expect(digest).toEqual({ rows: [], badLines: 0 });
+    expect(digest).toEqual({ rows: [], badLines: 0, ok: 0, retry: 0, fail: 0 });
   });
 
   it('empty file: yields [] and 0 bad lines', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'rig-empty-'));
     await writeFile(join(dir, 'empty.jsonl'), '');
     const digest = await readNightDetailed(dir, 'empty');
-    expect(digest).toEqual({ rows: [], badLines: 0 });
+    expect(digest).toEqual({ rows: [], badLines: 0, ok: 0, retry: 0, fail: 0 });
   });
 
   it('a night of only bad lines: [] rows, every line counted', async () => {
