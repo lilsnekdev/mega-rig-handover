@@ -26,7 +26,6 @@ export type DigestRow = {
 
 // Read runs/<night>.jsonl into one row per job, sorted by job.
 // A line that doesn't parse is counted, never thrown; a missing file yields [].
-// Stub: section 1's implementation replaces the body.
-export function readNight(_runsDir: string, _night: string): DigestRow[] {
-  throw new Error('readNight: not implemented');
-}
+// Implemented in read-night.ts (async: it reads from disk).
+export { readNight, readNightDetailed } from './read-night';
+export type { NightDigest } from './read-night';
